@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Foodgram{% endblock %}</title>
+    {% block static %}
+    {% endblock static %}
+</head>
+<body class="body">
+        {% block header %}{% endblock header %}
+        {% csrf_token %}
+        <main class="main container">
+        {% block content %}
+        <!-- Содержимое страницы -->
+        {% endblock content %}
+        </main>
+        {% include 'includes/footer.html' %}
+
+        {% block js %}
+        <!-- Загрузка JavaScript -->
+        {% endblock js %}
+</body>
+</html>
