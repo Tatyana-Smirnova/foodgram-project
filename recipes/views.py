@@ -346,8 +346,9 @@ def my_follow(request):
     for sub in subscriptions:
         recipe[sub] = Recipe.objects.filter(
             author=sub
-        )[:3] # К этому моменту было замечание, но я не поняла, как переписать.
-        # Основывалась на этом: https://docs.djangoproject.com/en/3.1/topics/db/queries/#limiting-querysets
+        )[:3]  # К этому моменту было замечание, но я не поняла, как переписать
+# Основывалась на этом:
+# https://docs.djangoproject.com/en/3.1/topics/db/queries/#limiting-querysets
 
     paginator = Paginator(subscriptions, settings.PER_PAGE)
     page_number = request.GET.get('page')
