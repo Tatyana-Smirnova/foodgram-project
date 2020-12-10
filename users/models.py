@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 class User(AbstractUser):
 
     class Role(models.TextChoices):
-        ANONYM = 'anonym', _('Anonym')
         USER = 'user', _('User')
         ADMIN = 'admin', _('Admin')
 

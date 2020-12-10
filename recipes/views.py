@@ -7,18 +7,19 @@ from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
 
 from .forms import RecipeCreateForm, RecipeForm
 from .models import (Amount, Favorite, Ingredient, Recipe, ShopList,
                      Subscription, Tag, User)
-from .utils import get_ingredients, get_tags_for_edit
+from .utils import get_ingredients, get_tags_for_edit, get_dict_purchases
 
 
 def index(request):
     tags_list = request.GET.getlist('filters')
 
     if tags_list == []:
-        tags_list = ['breakfast', 'lunch', 'dinner']
+        tags_list = [i.value for i in Tag.objects.all()]
     recipe_list = Recipe.objects.filter(
         tags__value__in=tags_list
     ).select_related(
@@ -28,19 +29,11 @@ def index(request):
     ).distinct()
 
     all_tags = Tag.objects.all()
-    paginator = Paginator(recipe_list, 6)
+    paginator = Paginator(recipe_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    if request.user.is_authenticated:
-        return render(request, 'indexAuth.html', {
-            'paginator': paginator,
-            'page': page,
-            'all_tags': all_tags,
-            'tags_list': tags_list,
-        })
-
-    return render(request, 'indexNotAuth.html', {
+    return render(request, 'index.html', {
         'paginator': paginator,
         'page': page,
         'all_tags': all_tags,
@@ -60,7 +53,7 @@ def profile(request, username):
     if request.user.is_authenticated and request.user != profile:
         follow_button = True
 
-    paginator = Paginator(recipes_profile, 6)
+    paginator = Paginator(recipes_profile, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
@@ -75,13 +68,6 @@ def profile(request, username):
 def recipe_view(request, username, recipe_id):
     profile = get_object_or_404(User, username=username)
     recipe = get_object_or_404(Recipe, pk=recipe_id)
-
-    if not request.user.is_authenticated:
-        return render(
-            request,
-            'singlePageNotAuth.html',
-            {'recipe': recipe}
-        )
 
     owner = False
     if request.user == recipe.author:
@@ -135,13 +121,14 @@ def ingredients(request):
     text = request.GET['query']
     ingredients = Ingredient.objects.filter(
         title__istartswith=text
-    )
+    ).values_list('title', 'dimension')
     ing_list = []
 
-    for ing in ingredients:
-        ing_dict = {}
-        ing_dict['title'] = ing.title
-        ing_dict['dimension'] = ing.dimension
+    for title, dimension in ingredients:
+        ing_dict = {
+            'title': title,
+            'dimension': dimension
+        }
         ing_list.append(ing_dict)
 
     return JsonResponse(ing_list, safe=False)
@@ -231,7 +218,7 @@ def favorites(request):
     ).filter(
         tags__value__in=tags_list
     ).distinct()
-    paginator = Paginator(recipe_list, 6)
+    paginator = Paginator(recipe_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
@@ -290,25 +277,7 @@ def get_purchases(request):
     recipes = Recipe.objects.filter(
         shop_list__user=request.user
     )
-    ing: dict = {}
-
-    for recipe in recipes:
-        ingredients = recipe.ingredient.values_list(
-            'title', 'dimension'
-        )
-        amount = recipe.recipe_amount.values_list(
-            'quantity', flat=True
-        )
-
-        for num in range(len(ingredients)):
-            title: str = ingredients[num][0]
-            dimension: str = ingredients[num][1]
-            quantity: int = amount[num]
-            if title in ing.keys():
-                ing[title] = [ing[title][0] + quantity, dimension]
-            else:
-                ing[title] = [quantity, dimension]
-
+    ing = get_dict_purchases(recipes)
     response = HttpResponse(content_type='txt/csv')
     response['Content-Disposition'] = 'attachment; filename="shop_list.txt"'
     writer = csv.writer(response)
@@ -377,9 +346,10 @@ def my_follow(request):
     for sub in subscriptions:
         recipe[sub] = Recipe.objects.filter(
             author=sub
-        )[:3]
+        )[:3] # К этому моменту было замечание, но я не поняла, как переписать.
+        # Основывалась на этом: https://docs.djangoproject.com/en/3.1/topics/db/queries/#limiting-querysets
 
-    paginator = Paginator(subscriptions, 6)
+    paginator = Paginator(subscriptions, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 

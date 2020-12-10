@@ -23,6 +23,8 @@
             <div class="single-card__header-info">
                 <h1 class="single-card__title">{{ recipe.title }}</h1>
 
+
+            {% if user.is_authenticated %}
                 <div class="single-card__favorite">
                     {% if request|is_favorite:recipe %}
                         <button class="button button_style_none" name="favorites" ><span class="icon-favorite icon-favorite_big icon-favorite_active"></span></button>
@@ -33,6 +35,7 @@
                         <div class="single-card__favorite-tooltip tooltip">Добавить в избранное</div>
                     {% endif %}
                 </div>
+            {% endif %}
 
             </div>
 
@@ -49,6 +52,7 @@
                 </ul>
             </div>
 
+        {% if user.is_authenticated %}
             <ul class="single-card__items">
                 {% if not request|is_in_purchases:recipe %}
                     <li class="single-card__item"><button class="button button_style_blue" name="purchases" data-out><span class="icon-plus button-icon"></span> Добавить в покупки</button></li>
@@ -64,6 +68,7 @@
                     {% endif %}
                 {% endif %}
             </ul>
+        {% endif %}
 
 
             <div class="single-card__section">
