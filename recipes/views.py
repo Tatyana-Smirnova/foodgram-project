@@ -28,7 +28,6 @@ def index(request):
         'tags'
     ).distinct()
 
-    all_tags = Tag.objects.all()
     paginator = Paginator(recipe_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -36,7 +35,6 @@ def index(request):
     return render(request, 'index.html', {
         'paginator': paginator,
         'page': page,
-        'all_tags': all_tags,
         'tags_list': tags_list,
     })
 
@@ -48,10 +46,6 @@ def profile(request, username):
     ).select_related(
         'author'
     ).distinct()
-    follow_button = False
-
-    if request.user.is_authenticated and request.user != profile:
-        follow_button = True
 
     paginator = Paginator(recipes_profile, settings.PER_PAGE)
     page_number = request.GET.get('page')
@@ -61,7 +55,6 @@ def profile(request, username):
         'paginator': paginator,
         'page': page,
         'profile': profile,
-        'follow_button': follow_button,
     })
 
 
@@ -69,20 +62,13 @@ def recipe_view(request, username, recipe_id):
     profile = get_object_or_404(User, username=username)
     recipe = get_object_or_404(Recipe, pk=recipe_id)
 
-    owner = False
-    if request.user == recipe.author:
-        owner = True
-
     return render(request, 'singlePage.html', {
         'recipe': recipe,
-        'owner': owner,
         'profile': profile,
         })
 
 
 def new_recipe(request):
-    all_tags = Tag.objects.all()
-
     if request.method == "POST":
         form = RecipeCreateForm(request.POST, files=request.FILES or None)
 
@@ -111,34 +97,22 @@ def new_recipe(request):
     else:
         form = RecipeCreateForm()
 
-    return render(request, "formRecipe.html", {
-        'all_tags': all_tags,
-        'form': form
-    })
+    return render(request, "formRecipe.html", {'form': form})
 
 
 def ingredients(request):
     text = request.GET['query']
     ingredients = Ingredient.objects.filter(
         title__istartswith=text
-    ).values_list('title', 'dimension')
-    ing_list = []
-
-    for title, dimension in ingredients:
-        ing_dict = {
-            'title': title,
-            'dimension': dimension
-        }
-        ing_list.append(ing_dict)
-
-    return JsonResponse(ing_list, safe=False)
+    ).values('title', 'dimension')
+    ingredients_list = list(ingredients)
+    return JsonResponse(ingredients_list, safe=False)
 
 
 @login_required
 def recipe_edit(request, username, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     author = get_object_or_404(User, id=recipe.author_id)
-    all_tags = Tag.objects.all()
     recipe_tags = recipe.tags.values_list('value', flat=True)
 
     if request.user != author:
@@ -184,7 +158,6 @@ def recipe_edit(request, username, recipe_id):
     return render(request, "formChangeRecipe.html", {
         'form': form,
         'recipe': recipe,
-        'all_tags': all_tags,
         'recipe_tags': recipe_tags,
     })
 
@@ -210,9 +183,8 @@ def favorites(request):
     tags_list = request.GET.getlist('filters')
 
     if tags_list == []:
-        tags_list = ['breakfast', 'lunch', 'dinner']
+        tags_list = [i.value for i in Tag.objects.all()]
 
-    all_tags = Tag.objects.all()
     recipe_list = Recipe.objects.filter(
         favorite_recipes__user=request.user
     ).filter(
@@ -225,7 +197,6 @@ def favorites(request):
     return render(request, "favorites.html", {
         'paginator': paginator,
         'page': page,
-        'all_tags': all_tags,
         'tags_list': tags_list,
     })
 
@@ -346,9 +317,7 @@ def my_follow(request):
     for sub in subscriptions:
         recipe[sub] = Recipe.objects.filter(
             author=sub
-        )[:3]  # К этому моменту было замечание, но я не поняла, как переписать
-# Основывалась на этом:
-# https://docs.djangoproject.com/en/3.1/topics/db/queries/#limiting-querysets
+        )[:3]
 
     paginator = Paginator(subscriptions, settings.PER_PAGE)
     page_number = request.GET.get('page')

@@ -1,4 +1,4 @@
-from .models import ShopList
+from .models import ShopList, Tag
 
 
 def get_shop_list(request):
@@ -9,3 +9,8 @@ def get_shop_list(request):
     else:
         shop_list_count = None
     return {'shop_list_count': shop_list_count}
+
+
+def all_tags(request):
+    all_tags = Tag.objects.all()
+    return {'all_tags': all_tags}
