@@ -4,9 +4,15 @@
 {% block title %}Регистрация{% endblock %}
 {% block static %}
 {% load static %}
+
 {% load user_filters %}
 <link rel="stylesheet" href="{% static 'pages/form.css' %}">
 {% endblock static %}
+
+{% block header %}
+{% include 'includes/nav.html' with index=True %}
+{% endblock %}
+
 {% block content %}
 
 <main class="main container">

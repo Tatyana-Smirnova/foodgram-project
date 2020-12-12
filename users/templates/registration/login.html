@@ -6,6 +6,10 @@
 {% endblock static %}
 {% block content %}
 
+{% block header %}
+{% include 'includes/nav.html' with index=True %}
+{% endblock %}
+
 {% load user_filters %}
 
 <main class="main container">

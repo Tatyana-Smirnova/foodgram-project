@@ -14,7 +14,6 @@ services:
 
   web:
     image: nebesnaya/foodgram-project:latest
-#    command: ['python', 'manage.py', 'migrate']
     restart: always
     volumes:
       - static_volume:/code/static
