@@ -39,7 +39,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: nebesnaya/foodgram
+          repository: nebesnaya/foodgram-project
           tag_with_ref: true
 
 
@@ -56,7 +56,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          source: "./docker-compose.yaml,nginx,.env"
+          source: "./docker-compose.yaml,nginx"
           target: "/home/yc-user/app"
 
       - name: executing remote ssh commands to deploy
@@ -69,5 +69,5 @@ jobs:
           script: |
             cd app
             sudo docker-compose rm -s -f web
-            sudo docker rmi nebesnaya/yamdb_final:latest
+            sudo docker rmi nebesnaya/foodgram-project:latest
             sudo docker-compose up -d
