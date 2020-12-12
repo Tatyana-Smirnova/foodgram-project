@@ -4,8 +4,12 @@
 {% load static %}
     <link rel="stylesheet" href="{% static 'pages/index.css' %}">
 {% endblock static %}
-{% block content %}
+
+{% block header %}
 {% include 'includes/nav.html' with index=True %}
+{% endblock %}
+
+{% block content %}
 {% load tag_filters %}
 {% load recipe_filters %}
 {% csrf_token %}
