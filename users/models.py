@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-
     class Role(models.TextChoices):
         USER = 'user', _('User')
         ADMIN = 'admin', _('Admin')
@@ -15,7 +14,7 @@ class User(AbstractUser):
         max_length=20,
         choices=Role.choices,
         default=Role.USER,
-        )
+    )
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

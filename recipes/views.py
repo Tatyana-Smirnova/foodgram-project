@@ -65,7 +65,7 @@ def recipe_view(request, username, recipe_id):
     return render(request, 'singlePage.html', {
         'recipe': recipe,
         'profile': profile,
-        })
+    })
 
 
 def new_recipe(request):
