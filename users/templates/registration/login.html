@@ -4,12 +4,12 @@
 {% load static %}
     <link rel="stylesheet" href="{% static 'pages/form.css' %}">
 {% endblock static %}
-{% block content %}
 
 {% block header %}
 {% include 'includes/nav.html' with index=True %}
 {% endblock %}
 
+{% block content %}
 {% load user_filters %}
 
 <main class="main container">
