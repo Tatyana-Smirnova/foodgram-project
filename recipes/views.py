@@ -71,13 +71,15 @@ def recipe_view(request, username, recipe_id):
 def new_recipe(request):
     if request.method == "POST":
         form = RecipeCreateForm(request.POST, files=request.FILES or None)
+        ingredients = get_ingredients(request)
+        tags = get_tags_for_edit(request)
+        if not tags:
+            form.add_error(None, 'Добавьте теги, это поле обязательно.')
 
         if form.is_valid():
-            tags = get_tags_for_edit(request)
             my_recipe = form.save(commit=False)
             my_recipe.author = request.user
             my_recipe.save()
-            ingredients = get_ingredients(request)
 
             for title, quantity in ingredients.items():
                 ingredient = Ingredient.objects.get(title=title)
@@ -123,19 +125,21 @@ def recipe_edit(request, username, recipe_id):
         )
 
     if request.method == 'POST':
-        new_tags = get_tags_for_edit(request)
         form = RecipeForm(
             request.POST,
             files=request.FILES or None,
             instance=recipe
         )
+        ingredients = get_ingredients(request)
+        new_tags = get_tags_for_edit(request)
+        if not new_tags:
+            form.add_error(None, 'Добавьте теги, это поле обязательно.')
 
         if form.is_valid():
             my_recipe = form.save(commit=False)
             my_recipe.author = request.user
             my_recipe.save()
             my_recipe.recipe_amount.all().delete()
-            ingredients = get_ingredients(request)
 
             for title, quantity in ingredients.items():
                 ingredient = Ingredient.objects.get(title=title)
@@ -153,8 +157,8 @@ def recipe_edit(request, username, recipe_id):
                 recipe_id=recipe.id,
                 username=request.user.username
             )
-
-    form = RecipeForm(instance=recipe)
+    else:
+        form = RecipeForm(instance=recipe)
     return render(request, "formChangeRecipe.html", {
         'form': form,
         'recipe': recipe,

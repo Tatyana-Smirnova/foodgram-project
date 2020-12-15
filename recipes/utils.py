@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.forms import ValidationError
 
 from .models import Tag
 
@@ -10,6 +11,9 @@ def get_ingredients(request):
             ing_num = key[15:]
             ingredients[request.POST[key]] = request.POST[
                 'valueIngredient_' + ing_num]
+    for ing in ingredients:
+        if float(ingredients[ing]) < 0.0:
+            raise ValidationError('Значение не может быть отрицательным')
     return ingredients
 
 

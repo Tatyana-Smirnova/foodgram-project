@@ -68,11 +68,11 @@
             <div class="form__group">
                 <label for="{{ form.cooking_time.id_for_label }}" class="form__label">Время приготовления</label>
                 <div class="form__field-group form__field-group_time">
-                    <input type="{{ form.cooking_time.widget_type }}"
+                    <input type="number"
                            id="{{ form.cooking_time.id_for_label }}"
                            name="{{ form.cooking_time.html_name }}"
                            value="{{ form.cooking_time.value|default_if_none:'' }}"
-                           class="form__input" required>
+                           class="form__input" required min="0">
                     <label for="{{ form.cooking_time.id_for_label }}" class="form__label">минут</label>
                     <span class="form__error">{{ form.cooking_time.errors }}</span>
                 </div>
@@ -91,6 +91,13 @@
                     <span class="form__error">{{ error|escape }}</span>
                 </div>
             </div>
+            {% if form.non_field_errors %}
+                <ul>
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
             <div class="form__footer">
                 <button class="button button_style_blue">Создать рецепт</button>
             </div>

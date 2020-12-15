@@ -1,7 +1,7 @@
     <div class="card-user" data-author={{ subscription.id }}>
 
         <div class="card-user__header">
-            <h2 class="card-user__title">{{ subscription }}</h2>
+            <h2 class="card-user__title"><a href="{% url 'profile' subscription.username %}" style="text-decoration: none" style="color: black">{{ subscription }}</a></h2>
         </div>
 
         <div class="card-user__body">
