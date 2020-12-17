@@ -11,7 +11,7 @@ from django.conf import settings
 
 from .forms import RecipeCreateForm, RecipeForm
 from .models import (Amount, Favorite, Ingredient, Recipe, ShopList,
-                     Subscription, Tag, User)
+                     Subscription, User)
 from .utils import get_ingredients, get_tags_for_edit, get_dict_purchases
 
 
