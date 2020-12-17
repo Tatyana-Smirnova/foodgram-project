@@ -20,6 +20,7 @@ urlpatterns += [
 ]
 
 handler404 = "recipes.views.page_not_found"
+handler500 = "recipes.views.server_error"
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,

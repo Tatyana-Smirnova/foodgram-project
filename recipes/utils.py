@@ -12,7 +12,7 @@ def get_ingredients(request):
             ingredients[request.POST[key]] = request.POST[
                 'valueIngredient_' + ing_num]
     for ing in ingredients:
-        if float(ingredients[ing]) < 0.0:
+        if float(ingredients[ing]) < 0.1:
             raise ValidationError('Значение не может быть отрицательным')
     return ingredients
 

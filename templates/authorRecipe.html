@@ -14,8 +14,6 @@
 {% load recipe_filters %}
 {% csrf_token %}
 
- <main class="main container">
-
     <div class="main__header">
         <h1 class="main__title">{{ profile }}</h1>
 
@@ -27,7 +25,7 @@
                             id="{{ tag.value }}"
                             class="tags__checkbox tags__checkbox_style_{{ tag.style }}
                             {% if tag.value in filter_values %}tags__checkbox_active {% endif %}"
-                            href="{{profile.username}}?{{ request|get_filter_link:tag}}"></a>
+                            href="{% url 'profile' profile.username %}?{{ request|get_filter_link:tag}}"></a>
                         <span class="tags__label">{{ tag.name }}</span>
                     </li>
                 {% endfor %}
@@ -38,9 +36,9 @@
     {% if user.is_authenticated and user != profile %}
         <div class="author-subscribe" data-author={{ profile.id }}>
             {% if not request|is_follower:profile %}
-                <p style="padding: 0 0 2em 0;"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button></p>
+                <p style="padding: 0 0 2em 0;"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out="true">Подписаться на автора</button></p>
             {% else %}
-                <p style="padding: 0 0 2em 0;"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" >Отписаться от автора</button></p>
+                <p style="padding: 0 0 2em 0;"><button class="button button_style_light-blue button_size_subscribe" name="subscribe">Отписаться от автора</button></p>
             {% endif %}
         </div>
     {% endif %}
@@ -53,9 +51,9 @@
     </div>
 
     {% if page.has_other_pages %}
-        {% include "includes/paginator.html" with items=page paginator=paginator tags_for_page=tags_list%}
+        {% include "includes/paginator.html" with items=page paginator=paginator tags_for_page=tags_list %}
     {% endif %}
-</main>
+
 {% endblock content %}
 
 {% block js %}

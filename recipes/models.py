@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-
 User = get_user_model()
 
 
@@ -43,9 +42,9 @@ class Recipe(models.Model):
         through_fields=('recipe', 'ingredient')
     )
     tags = models.ManyToManyField(Tag, related_name='recipe_tag')
-    cooking_time = models.FloatField(validators=[MinValueValidator(0),
-                                                 MaxValueValidator(10000)],
-                                     blank=False)
+    cooking_time = models.IntegerField(validators=[MinValueValidator(1),
+                                                   MaxValueValidator(10000)],
+                                       blank=False)
 
     class Meta:
         ordering = ['-pub_date']
@@ -65,7 +64,7 @@ class Amount(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredients_amount',
     )
-    quantity = models.FloatField(validators=[MinValueValidator(0),
+    quantity = models.FloatField(validators=[MinValueValidator(0.1),
                                              MaxValueValidator(100000)],
                                  blank=False)
 

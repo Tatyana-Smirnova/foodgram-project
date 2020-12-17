@@ -18,15 +18,20 @@ from .utils import get_ingredients, get_tags_for_edit, get_dict_purchases
 def index(request):
     tags_list = request.GET.getlist('filters')
 
-    if tags_list == []:
-        tags_list = [i.value for i in Tag.objects.all()]
-    recipe_list = Recipe.objects.filter(
-        tags__value__in=tags_list
-    ).select_related(
-        'author'
-    ).prefetch_related(
-        'tags'
-    ).distinct()
+    if tags_list:
+        recipe_list = Recipe.objects.filter(
+            tags__value__in=tags_list
+        ).select_related(
+            'author'
+        ).prefetch_related(
+            'tags'
+        ).distinct()
+    else:
+        recipe_list = Recipe.objects.all().select_related(
+            'author'
+        ).prefetch_related(
+            'tags'
+        ).distinct()
 
     paginator = Paginator(recipe_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
@@ -41,11 +46,23 @@ def index(request):
 
 def profile(request, username):
     profile = get_object_or_404(User, username=username)
-    recipes_profile = Recipe.objects.filter(
-        author=profile
-    ).select_related(
-        'author'
-    ).distinct()
+    tags_list = request.GET.getlist('filters')
+    if tags_list:
+        recipes_profile = Recipe.objects.filter(
+            author=profile, tags__value__in=tags_list
+        ).select_related(
+            'author'
+        ).prefetch_related(
+            'tags'
+        ).distinct()
+    else:
+        recipes_profile = Recipe.objects.filter(
+            author=profile
+        ).select_related(
+            'author'
+        ).prefetch_related(
+            'tags'
+        ).distinct()
 
     paginator = Paginator(recipes_profile, settings.PER_PAGE)
     page_number = request.GET.get('page')
@@ -55,6 +72,7 @@ def profile(request, username):
         'paginator': paginator,
         'page': page,
         'profile': profile,
+        'tags_list': tags_list,
     })
 
 
@@ -75,6 +93,11 @@ def new_recipe(request):
         tags = get_tags_for_edit(request)
         if not tags:
             form.add_error(None, 'Добавьте теги, это поле обязательно.')
+        if not ingredients:
+            form.add_error(None, 'Добавьте ингредиенты из предложенных.')
+        for title, _ in ingredients.items():
+            if not Ingredient.objects.filter(title=title).exists():
+                form.add_error(None, f'Ингредиент {title} отсутствует в базе.')
 
         if form.is_valid():
             my_recipe = form.save(commit=False)
@@ -134,6 +157,11 @@ def recipe_edit(request, username, recipe_id):
         new_tags = get_tags_for_edit(request)
         if not new_tags:
             form.add_error(None, 'Добавьте теги, это поле обязательно.')
+        if not ingredients:
+            form.add_error(None, 'Добавьте ингредиенты из предложенных.')
+        for title, _ in ingredients.items():
+            if not Ingredient.objects.filter(title=title).exists():
+                form.add_error(None, f'Ингредиент {title} отсутствует в базе.')
 
         if form.is_valid():
             my_recipe = form.save(commit=False)
@@ -337,3 +365,8 @@ def my_follow(request):
 def page_not_found(request, exception):
     return render(request, 'misc/404.html',
                   {'path': request.path}, status=404)
+
+
+def server_error(request):
+    return render(request, 'misc/500.html',
+                  {'path': request.path}, status=500)
