@@ -214,14 +214,20 @@ def recipe_delete(request, username, recipe_id):
 def favorites(request):
     tags_list = request.GET.getlist('filters')
 
-    if tags_list == []:
-        tags_list = [i.value for i in Tag.objects.all()]
+    if tags_list:
+        recipe_list = Recipe.objects.filter(
+            favorite_recipes__user=request.user,
+            tags__value__in=tags_list
+        ).prefetch_related(
+            'tags'
+        ).distinct()
+    else:
+        recipe_list = Recipe.objects.filter(
+            favorite_recipes__user=request.user
+        ).prefetch_related(
+            'tags'
+        ).distinct()
 
-    recipe_list = Recipe.objects.filter(
-        favorite_recipes__user=request.user
-    ).filter(
-        tags__value__in=tags_list
-    ).distinct()
     paginator = Paginator(recipe_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)

@@ -26,7 +26,7 @@
                             id="{{ tag.value }}"
                             class="tags__checkbox tags__checkbox_style_{{ tag.style }}
                             {% if tag.value in filter_values %}tags__checkbox_active {% endif %}"
-                            href="favorites?{{ request|get_filter_link:tag}}"></a>
+                            href="{% url 'favorites' %}?{{ request|get_filter_link:tag}}"></a>
                         <span class="tags__label">{{ tag.name }}</span>
                     </li>
                 {% endfor %}
